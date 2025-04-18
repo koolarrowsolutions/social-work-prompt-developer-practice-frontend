@@ -1,5 +1,6 @@
 const API_URL = "https://social-work-prompt-developer-practice-backend.vercel.app/api/gpt";
 
+// Step 1: Show example prompt options based on dropdown scenario
 async function getPromptVariations() {
   const selected = document.getElementById("useCaseSelect").value;
   if (!selected) return alert("Please select a use case.");
@@ -37,6 +38,7 @@ async function getPromptVariations() {
   });
 }
 
+// Step 2: Send selected prompt to GPT for response
 async function sendPrompt(userPrompt) {
   const res = await fetch(API_URL, {
     method: "POST",
@@ -48,6 +50,7 @@ async function sendPrompt(userPrompt) {
   displayResponse(data.answer);
 }
 
+// Step 3: Allow user to type their own follow-up
 async function sendCustomFollowUp() {
   const followUp = document.getElementById("customFollowUp").value;
   if (!followUp) return alert("Please type a follow-up question.");
@@ -62,11 +65,12 @@ async function sendCustomFollowUp() {
   displayResponse(data.answer);
 }
 
+// Step 4: Display response and follow-up prompt suggestions (user-facing prompts)
 async function displayResponse(answerText) {
   document.getElementById("responseBox").style.display = "block";
   document.getElementById("response").innerText = answerText;
 
-  const followUpPrompt = `Based on this AI response: "${answerText}", generate 3 follow-up prompts a social worker might ask GPT to go deeper or expand their understanding.`;
+  const followUpPrompt = `You're an expert in prompt engineering for social work. A GPT model just gave this response: "${answerText}". Generate 3 helpful follow-up prompts a social worker might type into GPT to explore this further, clarify something, or get more detailed help. These should be written as practical prompts a user would input — not reflective questions about the user's experience.`;
 
   const res = await fetch(API_URL, {
     method: "POST",
