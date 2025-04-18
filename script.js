@@ -5,7 +5,7 @@ async function getPromptVariations() {
   const selected = document.getElementById("useCaseSelect").value;
   if (!selected) return alert("Please select a use case.");
 
-  const variationPrompt = `You're an expert in prompt engineering. Show three high-quality, well-formulated example prompts a social worker could use to explore this topic effectively using AI: "${selected}". Each prompt should model good strategy, clear intent, and useful specificity.`;
+  const variationPrompt = `You are an expert in prompt engineering for AI. A social worker wants to use GPT to get practical help or guidance about: "${selected}". Generate 3 well-structured, effective example prompts that the user might ask GPT to get useful results. These should be direct, informative prompts written in the user's voice — not reflective or introspective questions aimed at the user. Each prompt should be designed to get specific, actionable, or strategic information from the AI.`;
 
   const res = await fetch(API_URL, {
     method: "POST",
