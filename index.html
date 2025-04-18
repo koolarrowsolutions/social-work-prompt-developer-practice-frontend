@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Social Work Magic Prompt Assistant</title>
+  <title>Social Work Prompt Assistant</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; background: #f4f8fb; }
+    body { font-family: sans-serif; padding: 20px; background: #f4f8fb; max-width: 800px; margin: auto; }
     select, button, textarea { display: block; margin: 10px 0; width: 100%; padding: 10px; font-size: 16px; }
-    #responseBox, .follow-up { margin-top: 20px; background: #fff; padding: 15px; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+    #variationBox, #responseBox { margin-top: 20px; background: #fff; padding: 15px; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+    button.option-btn { margin: 5px 0; padding: 10px; background: #e6f0ff; border: 1px solid #ccc; cursor: pointer; text-align: left; }
     .follow-up button { margin-top: 10px; }
   </style>
 </head>
@@ -18,13 +19,25 @@
   <label for="useCaseSelect">Choose a scenario:</label>
   <select id="useCaseSelect">
     <option value="">-- Select a use case --</option>
-    <option value="What should I look for on a home visit?">Home Visit</option>
-    <option value="How do I write a strengths-based case note?">Writing Notes</option>
-    <option value="How do I help a resistant parent engage in services?">Engaging Parents</option>
-    <!-- Add more as needed -->
+    <option value="Conducting a home visit">Home Visit</option>
+    <option value="Writing a case note">Writing Case Notes</option>
+    <option value="Engaging a resistant parent">Parent Engagement</option>
+    <option value="Preparing for a child welfare court hearing">Court Preparation</option>
+    <option value="Assessing for domestic violence">DV Screening</option>
+    <option value="Interviewing a child about suspected abuse">Child Interviewing</option>
+    <option value="Building rapport with a teenager">Teen Rapport Building</option>
+    <option value="Creating a safety plan with a client">Safety Planning</option>
+    <option value="Documenting a mandated report">Mandated Reporting</option>
+    <option value="Collaborating with a school counselor">School Collaboration</option>
+    <!-- Add 40 more here later -->
   </select>
 
-  <button onclick="sendPrompt()">Send Prompt</button>
+  <button onclick="getPromptVariations()">Show Prompt Options</button>
+
+  <div id="variationBox" style="display: none;">
+    <h3>Choose a prompt variation:</h3>
+    <div id="variationOptions"></div>
+  </div>
 
   <div id="responseBox" style="display: none;">
     <h3>AI Response</h3>
