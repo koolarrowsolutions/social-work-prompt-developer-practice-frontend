@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Social Work Magic Prompt Assistant</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f4f8fb; }
+    select, button, textarea { display: block; margin: 10px 0; width: 100%; padding: 10px; font-size: 16px; }
+    #responseBox, .follow-up { margin-top: 20px; background: #fff; padding: 15px; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+    .follow-up button { margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <h1>Social Work Prompt Assistant</h1>
+
+  <label for="useCaseSelect">Choose a scenario:</label>
+  <select id="useCaseSelect">
+    <option value="">-- Select a use case --</option>
+    <option value="What should I look for on a home visit?">Home Visit</option>
+    <option value="How do I write a strengths-based case note?">Writing Notes</option>
+    <option value="How do I help a resistant parent engage in services?">Engaging Parents</option>
+    <!-- Add more as needed -->
+  </select>
+
+  <button onclick="sendPrompt()">Send Prompt</button>
+
+  <div id="responseBox" style="display: none;">
+    <h3>AI Response</h3>
+    <p id="response"></p>
+
+    <div class="follow-up">
+      <h4>Follow-Up Options</h4>
+      <div id="followUps"></div>
+      <textarea id="customFollowUp" placeholder="Or type your own follow-up..."></textarea>
+      <button onclick="sendCustomFollowUp()">Send Follow-Up</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
