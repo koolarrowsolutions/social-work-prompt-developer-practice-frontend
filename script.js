@@ -1,6 +1,5 @@
 const API_URL = "https://social-work-prompt-developer-practice-backend.vercel.app/api/gpt";
 
-// Step 1: Get GPT-generated prompt variations for selected scenario
 async function getPromptVariations() {
   const selected = document.getElementById("useCaseSelect").value;
   if (!selected) return alert("Please select a use case.");
@@ -16,22 +15,28 @@ async function getPromptVariations() {
   const data = await res.json();
   const variations = data.answer.split("\n").filter(v => v.trim()).slice(0, 3);
 
-  document.getElementById("variationBox").style.display = "block";
   const container = document.getElementById("variationOptions");
   container.innerHTML = "";
+  document.getElementById("variationBox").style.display = "block";
+  document.getElementById("responseBox").style.display = "none";
 
   variations.forEach(v => {
+    const prompt = v.replace(/^\d+\.\s*/, "");
     const btn = document.createElement("button");
-    btn.innerText = v.replace(/^\d+\.\s*/, "");
+    btn.innerText = prompt;
     btn.className = "option-btn";
-    btn.onclick = () => sendPrompt(v);
+    btn.onclick = () => {
+      container.innerHTML = "";
+      const selectedBtn = document.createElement("button");
+      selectedBtn.className = "option-btn selected";
+      selectedBtn.innerText = prompt;
+      container.appendChild(selectedBtn);
+      sendPrompt(prompt);
+    };
     container.appendChild(btn);
   });
-
-  document.getElementById("responseBox").style.display = "none";
 }
 
-// Step 2: Send selected prompt to GPT for full response
 async function sendPrompt(userPrompt) {
   const res = await fetch(API_URL, {
     method: "POST",
@@ -40,10 +45,9 @@ async function sendPrompt(userPrompt) {
   });
 
   const data = await res.json();
-  displayResponse(data);
+  displayResponse(data.answer);
 }
 
-// Step 3: Handle user-written follow-up
 async function sendCustomFollowUp() {
   const followUp = document.getElementById("customFollowUp").value;
   if (!followUp) return alert("Please type a follow-up question.");
@@ -55,19 +59,31 @@ async function sendCustomFollowUp() {
   });
 
   const data = await res.json();
-  displayResponse(data);
+  displayResponse(data.answer);
 }
 
-// Display AI response and follow-up prompt buttons
-function displayResponse(data) {
+async function displayResponse(answerText) {
   document.getElementById("responseBox").style.display = "block";
-  document.getElementById("response").innerText = data.answer;
-  document.getElementById("followUps").innerHTML = "";
+  document.getElementById("response").innerText = answerText;
 
-  data.options.forEach(option => {
+  const followUpPrompt = `Based on this AI response: "${answerText}", generate 3 follow-up prompts a social worker might ask GPT to go deeper or expand their understanding.`;
+
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ useCase: followUpPrompt })
+  });
+
+  const followUps = await res.json();
+  const suggestions = followUps.answer.split("\n").filter(v => v.trim()).slice(0, 3);
+
+  const container = document.getElementById("followUps");
+  container.innerHTML = "";
+
+  suggestions.forEach(option => {
     const btn = document.createElement("button");
-    btn.innerText = option;
+    btn.innerText = option.replace(/^\d+\.\s*/, "");
     btn.onclick = () => sendPrompt(option);
-    document.getElementById("followUps").appendChild(btn);
+    container.appendChild(btn);
   });
 }
