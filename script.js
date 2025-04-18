@@ -1,11 +1,11 @@
 const API_URL = "https://social-work-prompt-developer-practice-backend.vercel.app/api/gpt";
 
-// Step 1: Get GPT-generated prompt variations
+// Step 1: Get GPT-generated prompt variations for selected scenario
 async function getPromptVariations() {
   const selected = document.getElementById("useCaseSelect").value;
   if (!selected) return alert("Please select a use case.");
 
-  const variationPrompt = `Give me three different prompt variations a social worker might use for this scenario: ${selected}`;
+  const variationPrompt = `You're an expert in prompt engineering. Show three high-quality, well-formulated example prompts a social worker could use to explore this topic effectively using AI: "${selected}". Each prompt should model good strategy, clear intent, and useful specificity.`;
 
   const res = await fetch(API_URL, {
     method: "POST",
@@ -31,7 +31,7 @@ async function getPromptVariations() {
   document.getElementById("responseBox").style.display = "none";
 }
 
-// Step 2: Send selected variation to GPT for full response
+// Step 2: Send selected prompt to GPT for full response
 async function sendPrompt(userPrompt) {
   const res = await fetch(API_URL, {
     method: "POST",
@@ -43,7 +43,7 @@ async function sendPrompt(userPrompt) {
   displayResponse(data);
 }
 
-// Step 3: Send custom follow-up
+// Step 3: Handle user-written follow-up
 async function sendCustomFollowUp() {
   const followUp = document.getElementById("customFollowUp").value;
   if (!followUp) return alert("Please type a follow-up question.");
@@ -58,7 +58,7 @@ async function sendCustomFollowUp() {
   displayResponse(data);
 }
 
-// Display AI response + follow-ups
+// Display AI response and follow-up prompt buttons
 function displayResponse(data) {
   document.getElementById("responseBox").style.display = "block";
   document.getElementById("response").innerText = data.answer;
