@@ -46,23 +46,18 @@ async function getPromptVariations() {
   const data = await res.json();
   removeTypingIndicator();
 
-  const variations = data.answer.split("\n").filter(v => v.trim()).slice(0, 6);
+  const variations = parseLabeledPrompts(data.answer);
 
   const box = document.getElementById("variationBox");
   const container = document.getElementById("variationOptions");
   container.innerHTML = "";
   box.style.display = "block";
 
-  for (let i = 0; i < variations.length; i += 2) {
-    const label = variations[i]?.replace(/[:\s]+$/, "") || "";
-    const promptText = variations[i + 1]?.trim() || "";
-    if (label && promptText) {
-      const btn = createPromptButton(promptText, label, handlePromptSelection);
-      container.appendChild(btn);
-    }
-  }
+  variations.forEach(({ label, promptText }) => {
+    const btn = createPromptButton(promptText, label, handlePromptSelection);
+    container.appendChild(btn);
+  });
 
-  // Custom Prompt
   const customDiv = document.createElement("div");
   customDiv.innerHTML = `
     <strong>Custom Prompt:</strong>
@@ -70,6 +65,16 @@ async function getPromptVariations() {
     <button onclick="sendCustomFollowUp()">Send Custom Prompt</button>
   `;
   container.appendChild(customDiv);
+}
+
+function parseLabeledPrompts(text) {
+  const regex = /(Basic|Moderate|Advanced)\s*[:\-]?\s*(.*?)(?=(?:\n\s*(?:Basic|Moderate|Advanced)\s*[:\-])|$)/gis;
+  const matches = [];
+  let match;
+  while ((match = regex.exec(text)) !== null) {
+    matches.push({ label: match[1], promptText: match[2].trim() });
+  }
+  return matches;
 }
 
 function appendThreadItem(role, content) {
@@ -121,20 +126,16 @@ async function getFollowUpsBasedOnResponse(answerText) {
   const data = await res.json();
   removeTypingIndicator();
 
-  const variations = data.answer.split("\n").filter(v => v.trim()).slice(0, 6);
+  const variations = parseLabeledPrompts(data.answer);
 
   const container = document.createElement("div");
   container.className = "followup-block";
   container.innerHTML = `<h4>Follow-Up Options:</h4>`;
 
-  for (let i = 0; i < variations.length; i += 2) {
-    const label = variations[i]?.replace(/[:\s]+$/, "") || "";
-    const promptText = variations[i + 1]?.trim() || "";
-    if (label && promptText) {
-      const btn = createPromptButton(promptText, label, handlePromptSelection);
-      container.appendChild(btn);
-    }
-  }
+  variations.forEach(({ label, promptText }) => {
+    const btn = createPromptButton(promptText, label, handlePromptSelection);
+    container.appendChild(btn);
+  });
 
   const customDiv = document.createElement("div");
   customDiv.innerHTML = `
@@ -145,4 +146,4 @@ async function getFollowUpsBasedOnResponse(answerText) {
   container.appendChild(customDiv);
 
   threadContainer.appendChild(container);
-}
+} 
