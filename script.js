@@ -1,93 +1,148 @@
+// script.js
+
 const API_URL = "https://social-work-prompt-developer-practice-backend.vercel.app/api/gpt";
 
-// Step 1: Show example prompt options based on dropdown scenario
+const threadContainer = document.getElementById("conversationThread");
+
+function showTypingIndicator() {
+  const typingDiv = document.createElement("div");
+  typingDiv.id = "typing";
+  typingDiv.innerText = "Response being generated...";
+  threadContainer.appendChild(typingDiv);
+}
+
+function removeTypingIndicator() {
+  const typingDiv = document.getElementById("typing");
+  if (typingDiv) typingDiv.remove();
+}
+
+function createPromptButton(text, label, onClickHandler) {
+  const wrapper = document.createElement("div");
+  const lbl = document.createElement("strong");
+  lbl.innerText = `${label}:`;
+  const btn = document.createElement("button");
+  btn.innerText = text;
+  btn.className = "option-btn";
+  btn.onclick = () => onClickHandler(text, wrapper);
+  wrapper.appendChild(lbl);
+  wrapper.appendChild(btn);
+  return wrapper;
+}
+
 async function getPromptVariations() {
   const selected = document.getElementById("useCaseSelect").value;
   if (!selected) return alert("Please select a use case.");
 
-  const variationPrompt = `You are an expert in prompt engineering for AI. A social worker wants to use GPT to get practical help or guidance about: "${selected}". Generate 3 well-structured, effective example prompts that the user might ask GPT to get useful results. These should be direct, informative prompts written in the user's voice — not reflective or introspective questions aimed at the user. Each prompt should be designed to get specific, actionable, or strategic information from the AI.`;
+  const prompt = `You're an expert in prompt engineering for social workers. For the topic: "${selected}", generate 3 example prompts a user might input into ChatGPT. Label each as Basic, Moderate, or Advanced based on complexity. Do not ask questions of the user — these are examples the user would ask the AI.`;
+
+  showTypingIndicator();
 
   const res = await fetch(API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ useCase: variationPrompt })
+    body: JSON.stringify({ useCase: prompt })
   });
 
   const data = await res.json();
-  const variations = data.answer.split("\n").filter(v => v.trim()).slice(0, 3);
+  removeTypingIndicator();
 
+  const variations = data.answer.split("\n").filter(v => v.trim()).slice(0, 6);
+
+  const box = document.getElementById("variationBox");
   const container = document.getElementById("variationOptions");
   container.innerHTML = "";
-  document.getElementById("variationBox").style.display = "block";
-  document.getElementById("responseBox").style.display = "none";
+  box.style.display = "block";
 
-  variations.forEach(v => {
-    const prompt = v.replace(/^\d+\.\s*/, "");
-    const btn = document.createElement("button");
-    btn.innerText = prompt;
-    btn.className = "option-btn";
-    btn.onclick = () => {
-      container.innerHTML = "";
-      const selectedBtn = document.createElement("button");
-      selectedBtn.className = "option-btn selected";
-      selectedBtn.innerText = prompt;
-      container.appendChild(selectedBtn);
-      sendPrompt(prompt);
-    };
-    container.appendChild(btn);
-  });
+  for (let i = 0; i < variations.length; i += 2) {
+    const label = variations[i]?.replace(/[:\s]+$/, "") || "";
+    const promptText = variations[i + 1]?.trim() || "";
+    if (label && promptText) {
+      const btn = createPromptButton(promptText, label, handlePromptSelection);
+      container.appendChild(btn);
+    }
+  }
+
+  // Custom Prompt
+  const customDiv = document.createElement("div");
+  customDiv.innerHTML = `
+    <strong>Custom Prompt:</strong>
+    <textarea id="customFollowUp" placeholder="Type your own prompt..."></textarea>
+    <button onclick="sendCustomFollowUp()">Send Custom Prompt</button>
+  `;
+  container.appendChild(customDiv);
 }
 
-// Step 2: Send selected prompt to GPT for response
-async function sendPrompt(userPrompt) {
+function appendThreadItem(role, content) {
+  const div = document.createElement("div");
+  div.className = role;
+  div.innerHTML = `<p><strong>${role === "user" ? "You" : "AI"}:</strong> ${content}</p>`;
+  threadContainer.appendChild(div);
+}
+
+async function handlePromptSelection(prompt, container) {
+  document.querySelectorAll(".option-btn").forEach(b => b.remove());
+  container.querySelector("button").classList.add("selected");
+  appendThreadItem("user", prompt);
+  sendPrompt(prompt);
+}
+
+async function sendPrompt(prompt) {
+  showTypingIndicator();
   const res = await fetch(API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ useCase: userPrompt })
+    body: JSON.stringify({ useCase: prompt })
   });
 
   const data = await res.json();
-  displayResponse(data.answer);
+  removeTypingIndicator();
+  appendThreadItem("ai", data.answer);
+  getFollowUpsBasedOnResponse(data.answer);
 }
 
-// Step 3: Allow user to type their own follow-up
 async function sendCustomFollowUp() {
   const followUp = document.getElementById("customFollowUp").value;
-  if (!followUp) return alert("Please type a follow-up question.");
+  if (!followUp) return alert("Please type your prompt.");
+  appendThreadItem("user", followUp);
+  sendPrompt(followUp);
+}
+
+async function getFollowUpsBasedOnResponse(answerText) {
+  const prompt = `You're an expert in prompt engineering for social workers. Based on the following AI response: "${answerText}", provide 3 new example prompts (labeled Basic, Moderate, Advanced) that a user might type into ChatGPT to go deeper or get more specific help. These should be practical prompts a user would type into GPT.`;
+
+  showTypingIndicator();
 
   const res = await fetch(API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ followUp })
+    body: JSON.stringify({ useCase: prompt })
   });
 
   const data = await res.json();
-  displayResponse(data.answer);
-}
+  removeTypingIndicator();
 
-// Step 4: Display response and follow-up prompt suggestions (user-facing prompts)
-async function displayResponse(answerText) {
-  document.getElementById("responseBox").style.display = "block";
-  document.getElementById("response").innerText = answerText;
+  const variations = data.answer.split("\n").filter(v => v.trim()).slice(0, 6);
 
-  const followUpPrompt = `You're an expert in prompt engineering for social work. A GPT model just gave this response: "${answerText}". Generate 3 helpful follow-up prompts a social worker might type into GPT to explore this further, clarify something, or get more detailed help. These should be written as practical prompts a user would input — not reflective questions about the user's experience.`;
+  const container = document.createElement("div");
+  container.className = "followup-block";
+  container.innerHTML = `<h4>Follow-Up Options:</h4>`;
 
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ useCase: followUpPrompt })
-  });
+  for (let i = 0; i < variations.length; i += 2) {
+    const label = variations[i]?.replace(/[:\s]+$/, "") || "";
+    const promptText = variations[i + 1]?.trim() || "";
+    if (label && promptText) {
+      const btn = createPromptButton(promptText, label, handlePromptSelection);
+      container.appendChild(btn);
+    }
+  }
 
-  const followUps = await res.json();
-  const suggestions = followUps.answer.split("\n").filter(v => v.trim()).slice(0, 3);
+  const customDiv = document.createElement("div");
+  customDiv.innerHTML = `
+    <strong>Custom Prompt:</strong>
+    <textarea id="customFollowUp" placeholder="Type your own follow-up..."></textarea>
+    <button onclick="sendCustomFollowUp()">Send Custom Prompt</button>
+  `;
+  container.appendChild(customDiv);
 
-  const container = document.getElementById("followUps");
-  container.innerHTML = "";
-
-  suggestions.forEach(option => {
-    const btn = document.createElement("button");
-    btn.innerText = option.replace(/^\d+\.\s*/, "");
-    btn.onclick = () => sendPrompt(option);
-    container.appendChild(btn);
-  });
+  threadContainer.appendChild(container);
 }
