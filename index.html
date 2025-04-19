@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Social Work Prompt Assistant</title>
   <style>
     body {
@@ -13,20 +13,14 @@
       margin: auto;
     }
 
-    select, button, textarea {
+    select,
+    button,
+    textarea {
       display: block;
       margin: 10px 0;
       width: 100%;
       padding: 10px;
       font-size: 16px;
-    }
-
-    #variationBox, #responseBox {
-      margin-top: 20px;
-      background: #fff;
-      padding: 15px;
-      border-radius: 5px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
     }
 
     button.option-btn {
@@ -49,15 +43,33 @@
       font-weight: bold;
     }
 
-    .follow-up button {
-      margin-top: 10px;
-      width: 100%;
-      text-align: left;
+    #variationBox {
+      margin-top: 20px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .user, .ai {
+      background: #fff;
+      border-radius: 5px;
+      padding: 10px;
+      margin: 15px 0;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .user { border-left: 4px solid #2b6cb0; }
+    .ai { border-left: 4px solid #38a169; }
+
+    #typing {
+      font-style: italic;
+      color: gray;
+      margin: 10px 0;
     }
   </style>
 </head>
 <body>
-
   <h1>Social Work Prompt Assistant</h1>
 
   <label for="useCaseSelect">Choose a scenario:</label>
@@ -73,45 +85,8 @@
     <option value="Creating a safety plan with a client">Safety Planning</option>
     <option value="Documenting a mandated report">Mandated Reporting</option>
     <option value="Collaborating with a school counselor">School Collaboration</option>
-    <option value="Helping a foster parent manage behaviors">Foster Parent Support</option>
-    <option value="Dealing with a non-compliant client">Non-Compliance</option>
-    <option value="Completing a strengths-based assessment">Strengths-Based Assessment</option>
-    <option value="Making a referral to outside services">Referrals</option>
-    <option value="Preparing a child for reunification">Reunification Planning</option>
-    <option value="Preparing a child for adoption">Adoption Support</option>
-    <option value="Conducting a risk assessment">Risk Assessment</option>
-    <option value="Working with a non-English speaking family">Language & Culture</option>
-    <option value="Helping a youth transition to adulthood">Aging Out Support</option>
-    <option value="Addressing substance use in the home">Substance Abuse</option>
-    <option value="Coaching a parent on positive discipline">Discipline Coaching</option>
-    <option value="Following up after a CPS investigation">Post-Investigation Follow-Up</option>
-    <option value="Working with a family in crisis">Crisis Intervention</option>
-    <option value="Explaining services to a new client">Service Orientation</option>
-    <option value="Assessing basic needs (food, housing, safety)">Basic Needs Assessment</option>
-    <option value="Helping a student struggling in school">School Support</option>
-    <option value="Developing a case plan with family input">Collaborative Case Planning</option>
-    <option value="Managing a large caseload">Caseload Organization</option>
-    <option value="Documenting sensitive situations professionally">Sensitive Documentation</option>
-    <option value="Helping caregivers access respite care">Respite Care Navigation</option>
-    <option value="Supporting LGBTQ+ youth in foster care">LGBTQ+ Youth Support</option>
-    <option value="Handling conflict between foster child and caregiver">Conflict Resolution</option>
-    <option value="Reporting suspected human trafficking">Human Trafficking Reporting</option>
-    <option value="Navigating a child placement change">Placement Transitions</option>
-    <option value="Working with tribal families">Tribal Considerations</option>
-    <option value="Educating clients on legal rights and obligations">Legal Literacy</option>
-    <option value="Providing feedback to a supervisee">Supervision Support</option>
-    <option value="Using motivational interviewing in a session">Motivational Interviewing</option>
-    <option value="Facilitating a team decision-making meeting">TDM Facilitation</option>
-    <option value="Conducting a mental health screening">Mental Health Screening</option>
     <option value="Managing professional boundaries">Professional Boundaries</option>
-    <option value="Writing court reports for juvenile dependency">Court Report Writing</option>
-    <option value="Supporting a kinship caregiver">Kinship Support</option>
-    <option value="Handling allegations of neglect">Neglect Allegation Response</option>
-    <option value="Responding to burnout or compassion fatigue">Burnout Prevention</option>
-    <option value="Addressing implicit bias in case decisions">Bias Awareness</option>
-    <option value="Collaborating with law enforcement">Law Enforcement Collaboration</option>
-    <option value="Helping a client navigate immigration issues">Immigration Navigation</option>
-    <option value="Understanding trauma-informed care">Trauma-Informed Practice</option>
+    <!-- Add more use cases as needed -->
   </select>
 
   <button onclick="getPromptVariations()">Show Prompt Options</button>
@@ -121,17 +96,7 @@
     <div id="variationOptions"></div>
   </div>
 
-  <div id="responseBox" style="display: none;">
-    <h3>AI Response</h3>
-    <p id="response"></p>
-
-    <div class="follow-up">
-      <h4>Follow-Up Options</h4>
-      <div id="followUps"></div>
-      <textarea id="customFollowUp" placeholder="Or type your own follow-up..."></textarea>
-      <button onclick="sendCustomFollowUp()">Send Follow-Up</button>
-    </div>
-  </div>
+  <div id="conversationThread"></div>
 
   <script src="script.js"></script>
 </body>
